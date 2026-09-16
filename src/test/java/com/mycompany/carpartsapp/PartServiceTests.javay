@@ -1,0 +1,77 @@
+package com.mycompany.carpartsapp;
+
+import org.junit.jupiter.api.Test;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.boot.test.context.SpringBootTest;
+
+import java.util.List;
+
+import static org.junit.jupiter.api.Assertions.*;
+
+@SpringBootTest
+class PartServiceTests{
+
+	@Autowired
+	private PartService service;
+
+	@Test	
+	void testAddPart(){
+		CarPartInfo test = new CarPartInfo("Testing", "15", 5, 0);
+		CarPartInfo saved = service.addPart(test);
+	
+		assertNotNull(saved);
+	}
+
+	@Test
+	void testGetParts(){
+		List<CarPartInfo> parts = service.getParts();
+		assertNotNull(parts);
+	}
+
+	@Test
+	void testManyParts(){
+		service.addPart(new CarPartInfo("test1", "782.22", 1, 0));
+		service.addPart(new CarPartInfo("test2", "23,532.12", 1, 0));
+		service.addPart(new CarPartInfo("test3", "45.67", 1, 0));
+		
+		List<CarPartInfo> parts = service.getParts();
+		assertTrue(parts.size() >= 2); 
+	}
+	
+	@Test
+	void testGetById(){
+		CarPartInfo test = service.addPart(new CarPartInfo("Engine Mount", "102.23", 1, 0));
+		CarPartInfo byId = service.getById(test.getPartId());
+		assertNotNull(byId);
+		assertEquals("Engine Mount", byId.getPartName());
+	}
+
+	@Test
+	void testDoesntExist(){
+		CarPartInfo byId = service.getById(234235);
+		assertNull(byId);
+	}
+	
+	@Test
+	void testDeleteDoesntExist(){
+                service.deletePart(2335);
+                assertTrue(true);
+        }
+
+	@Test
+	void testUpdatePart(){
+		CarPartInfo test = service.addPart(new CarPartInfo("25% Tint", "56.89", 56, 0));
+		CarPartInfo updated = service.updatePart(test.getPartId(), 15);
+		assertNotNull(updated);
+		assertEquals(15, updated.getPartQuantity());
+	}
+
+	@Test
+	void testDeletePart(){
+		CarPartInfo test = service.addPart(new CarPartInfo("Car Cover", "25.99", 43, 0));
+		partService.deletePart(test.getPartId());
+		CarPartInfo deleted = service.getById(test.getPartId());
+		assertNull(deleted);
+	}
+
+}
