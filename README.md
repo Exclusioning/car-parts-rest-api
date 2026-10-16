@@ -172,5 +172,3 @@ Contributing (brief):
 If you plan large or breaking changes, please open an issue first to discuss design and API changes.
 
 ---
-
-If you want, I can also add a CONTRIBUTING.md and fill in more precise run/config examples after you confirm the target Java version and any expected external services (database, cache).
