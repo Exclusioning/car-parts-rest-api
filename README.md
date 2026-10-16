@@ -14,7 +14,7 @@ A simple Java REST API for browsing car parts, managing a shopping cart, and per
 - [Testing](#testing)
 - [API endpoints & example requests](#api-endpoints--example-requests)
 - [Project layout](#project-layout)
-- [Code Coverage / Testing](#code-coverage-report-(jacoco))
+- [Code Coverage / Testing](#code-coverage-report)
 
 
 ## What this project does
@@ -188,7 +188,7 @@ Refer to the model classes in `src/main/java/com/mycompany/carpartsapp/model` fo
 
 How it fits together: controllers handle HTTP requests and delegate to services; services contain business logic and use repositories to load/save domain models defined in `model/`.
 
-## Code Coverage Report (JaCoCo)
+## Code Coverage Report
 
 This application uses **JaCoCo** to measure automated test coverage across all REST endpoints, business logic services, and data models.
 
