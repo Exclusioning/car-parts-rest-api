@@ -14,7 +14,7 @@ A simple Java REST API for browsing car parts, managing a shopping cart, and per
 - [Testing](#testing)
 - [API endpoints & example requests](#api-endpoints--example-requests)
 - [Project layout](#project-layout)
-- [Code Coverage / Testing](#code-coverage-report)
+- [Code Coverage / Testing](#code-coverage-report-(jacoco))
 
 
 ## What this project does
