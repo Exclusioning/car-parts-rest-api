@@ -12,7 +12,7 @@ A simple Java REST API for browsing car parts, managing a shopping cart, and per
 - [Get started (quickstart)](#get-started-quickstart)
 - [Running](#running)
 - [Testing](#testing)
-- [Example API requests](#example-api-requests)
+- [API endpoints & example requests](#api-endpoints--example-requests)
 - [Project layout](#project-layout)
 - [How to get help](#how-to-get-help)
 - [Maintainers & contributing](#maintainers--contributing)
@@ -21,27 +21,27 @@ A simple Java REST API for browsing car parts, managing a shopping cart, and per
 Car Parts REST API exposes HTTP endpoints to:
 
 - List and query car parts
-- Manage a user shopping cart (add/remove items)
+- Manage a user shopping cart (add/remove/update items)
 - Perform basic user-related actions (create/lookup)
 
-The application entry point is src/main/java/com/mycompany/carpartsapp/CarpartsappApplication.java and HTTP endpoints live under src/main/java/com/mycompany/carpartsapp/controller.
+The application entry point is `src/main/java/com/mycompany/carpartsapp/CarpartsappApplication.java` and HTTP endpoints live under `src/main/java/com/mycompany/carpartsapp/controller`.
 
 ## Why it’s useful
 - Small, focused codebase ideal for learning REST controllers, service layering, and simple persistence patterns in Java.
-- Ready-to-run Maven project (mvnw included) that can be extended into a production prototype or used for demos.
+- Ready-to-run Maven project (`mvnw` included) that can be extended into a production prototype or used for demos.
 - Clear separation of concerns (controllers, services, repositories, models) makes it easy to add features or swap implementations.
 
 ## Tech stack
 - Language: Java
-- Build: Maven (wrapper included: mvnw / mvnw.cmd)
+- Build: Maven (wrapper included: `mvnw` / `mvnw.cmd`)
 - Typical framework: Spring Boot-style project layout (main class + controllers/services)
 
 Notable files:
-- pom.xml — project build and dependencies
-- src/main/java/com/mycompany/carpartsapp/ — application code
+- `pom.xml` — project build and dependencies
+- `src/main/java/com/mycompany/carpartsapp/` — application code
 
 ## Prerequisites
-- JDK 17+ (or the version configured in pom.xml)
+- JDK 17+ (or the version configured in `pom.xml`)
 - Git
 - Internet access for Maven dependency resolution
 
@@ -89,49 +89,83 @@ SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
 SPRING_DATASOURCE_URL=jdbc:... server.port=9090 ./mvnw spring-boot:run
 ```
 
-Configuration files are under src/main/resources — supply Spring properties or environment variables to configure ports, datasources, and profiles.
+Configuration files are under `src/main/resources` — supply Spring properties or environment variables to configure ports, datasources, and profiles.
 
 ## Testing
-Unit tests live under src/test. Run them with:
+Unit tests live under `src/test`. Run them with:
 
 ```bash
 ./mvnw test
 ```
 
-Add tests under src/test/java to cover controllers and services before opening PRs.
+Add tests under `src/test/java` to cover controllers and services before opening PRs.
 
-## Example API requests
-Use the following examples as a starting point. Adjust the paths/JSON to match the models in src/main/java/com/mycompany/carpartsapp/model.
+## API endpoints & example requests
+Base path note: this project exposes endpoints under the `/CarPartApp` context path in the provided examples. If you run the app with a different context or base path, adjust the URLs accordingly. The examples below include precise curl commands you provided.
 
-- List parts (GET)
+Using /api/parts/*
 
-```bash
-curl -sS http://localhost:8080/api/parts
-```
-
-- Get a single part (GET)
+- Delete a part from the database
 
 ```bash
-curl -sS http://localhost:8080/api/parts/{partId}
+curl -X DELETE http://localhost:8080/CarPartApp/api/parts/101
 ```
 
-- Add an item to cart (POST)
+- See all parts
 
 ```bash
-curl -X POST http://localhost:8080/api/cart \
-  -H "Content-Type: application/json" \
-  -d '{"partId":"123","quantity":2,"userId":"user-1"}'
+curl -X GET http://localhost:8080/CarPartApp/api/parts
 ```
 
-- Create a user (POST)
+- See a specific part (replace `(part-number-goes-here)`)
 
 ```bash
-curl -X POST http://localhost:8080/api/users \
-  -H "Content-Type: application/json" \
-  -d '{"username":"alice","email":"alice@example.com"}'
+curl -X GET http://localhost:8080/CarPartApp/api/parts/(part-number-goes-here)
 ```
 
-Refer to the model classes in src/main/java/com/mycompany/carpartsapp/model for the exact request/response fields.
+- Update part quantity (replace placeholders)
+
+```bash
+curl -X PUT http://localhost:8080/CarPartApp/api/parts/(part-number-goes-here)/(part-quantity-goes-here)
+```
+
+- Add a part to the database (note: when the name contains spaces, use `%20` or quote the URL)
+
+```bash
+curl -X POST "http://localhost:8080/CarPartApp/api/parts?name=(Name%20Here)&price=(price-here)&quantity=(quantity-here)"
+```
+
+Using /api/cart/*
+
+- View a user's cart (uses cookies saved in cookies.txt)
+
+```bash
+curl -b cookies.txt -X GET http://localhost:8080/CarPartApp/api/cart
+```
+
+- Add an item to the cart (saves cookies to cookies.txt)
+
+```bash
+curl -c cookies.txt -X POST http://localhost:8080/CarPartApp/api/cart/(part-number-goes-here)
+```
+
+- Delete items from the user's cart
+
+```bash
+curl -b cookies.txt -X DELETE http://localhost:8080/CarPartApp/api/cart/(part-number-goes-here)/(part-quantity-goes-here)
+```
+
+- Update a part's quantity in the cart
+
+```bash
+curl -b cookies.txt -X PUT http://localhost:8080/CarPartApp/api/cart/(part-number-goes-here)/(quantity-to-update-here)
+```
+
+Notes:
+- Replace the `(placeholders)` with actual IDs, quantities, and prices.
+- The cart endpoints in examples use cookie-based session handling (`-c` to write cookies, `-b` to send cookies). If your app uses a different session mechanism, adapt accordingly.
+
+Refer to the model classes in `src/main/java/com/mycompany/carpartsapp/model` for the exact request/response fields.
 
 ## Project layout
 ```
@@ -152,11 +186,11 @@ Refer to the model classes in src/main/java/com/mycompany/carpartsapp/model for 
 └─ README.md
 ```
 
-How it fits together: controllers handle HTTP requests and delegate to services; services contain business logic and use repositories to load/save domain models defined in model/.
+How it fits together: controllers handle HTTP requests and delegate to services; services contain business logic and use repositories to load/save domain models defined in `model/`.
 
 ## How to get help
 - Open an issue in this repository with a clear title and reproduction steps.
-- Inspect the source under src/main/java for examples of request/response shapes.
+- Inspect the source under `src/main/java` for examples of request/response shapes.
 
 When filing an issue include: endpoint path, request payload, response (or server logs), and steps to reproduce.
 
@@ -164,11 +198,9 @@ When filing an issue include: endpoint path, request payload, response (or serve
 Maintainer: Exclusioning (GitHub repository owner)
 
 Contributing (brief):
-1. Fork the repository and create a branch: git checkout -b feat/short-description
+1. Fork the repository and create a branch: `git checkout -b feat/short-description`
 2. Implement changes and add tests
-3. Run tests: ./mvnw test
+3. Run tests: `./mvnw test`
 4. Push and open a pull request against the main branch
 
 If you plan large or breaking changes, please open an issue first to discuss design and API changes.
-
----
