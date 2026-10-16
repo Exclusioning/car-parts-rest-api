@@ -182,6 +182,3 @@ The project includes Spring Boot test dependencies and JaCoCo reporting configur
 - Add DTOs for API requests/responses to decouple JPA entities from external contracts.
 - Add OpenAPI / Swagger documentation for discoverability.
 
-## License
-
-No explicit license file is present in the repository. Add a LICENSE file (e.g., MIT) if you intend to open-source this project.
