@@ -188,19 +188,3 @@ Refer to the model classes in `src/main/java/com/mycompany/carpartsapp/model` fo
 
 How it fits together: controllers handle HTTP requests and delegate to services; services contain business logic and use repositories to load/save domain models defined in `model/`.
 
-## How to get help
-- Open an issue in this repository with a clear title and reproduction steps.
-- Inspect the source under `src/main/java` for examples of request/response shapes.
-
-When filing an issue include: endpoint path, request payload, response (or server logs), and steps to reproduce.
-
-## Maintainers & contributing
-Maintainer: Exclusioning (GitHub repository owner)
-
-Contributing (brief):
-1. Fork the repository and create a branch: `git checkout -b feat/short-description`
-2. Implement changes and add tests
-3. Run tests: `./mvnw test`
-4. Push and open a pull request against the main branch
-
-If you plan large or breaking changes, please open an issue first to discuss design and API changes.
