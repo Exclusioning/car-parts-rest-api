@@ -14,8 +14,8 @@ A simple Java REST API for browsing car parts, managing a shopping cart, and per
 - [Testing](#testing)
 - [API endpoints & example requests](#api-endpoints--example-requests)
 - [Project layout](#project-layout)
-- [How to get help](#how-to-get-help)
-- [Maintainers & contributing](#maintainers--contributing)
+- [Code Coverage / Testing](#code-coverage-report)
+
 
 ## What this project does
 Car Parts REST API exposes HTTP endpoints to:
@@ -187,4 +187,41 @@ Refer to the model classes in `src/main/java/com/mycompany/carpartsapp/model` fo
 ```
 
 How it fits together: controllers handle HTTP requests and delegate to services; services contain business logic and use repositories to load/save domain models defined in `model/`.
+
+## Code Coverage Report (JaCoCo)
+
+This application uses **JaCoCo** to measure automated test coverage across all REST endpoints, business logic services, and data models.
+
+## Coverage Summary
+
+| Metric | Coverage | Verified / Executed |
+| :--- | :--- | :--- |
+| **Instruction Coverage** | **87%** | 552 / 633 instructions executed |
+| **Branch Coverage** | **91%** | 11 / 12 conditional paths evaluated |
+| **Core Services (`CartService`, `PartService`)** | **100%** | Full coverage on business logic & transactions |
+| **Controllers (`CartController`)** | **100%** | Full coverage on core API endpoints |
+
+## Module Breakdown
+
+| Package / Module | Instruction Coverage | Branch Coverage | Focus Area |
+| :--- | :--- | :--- | :--- |
+| **`CartService`** | **100%** | 90% | Cart processing & calculations |
+| **`PartService`** | **100%** | 100% | Part search & retrieval logic |
+| **`CartController`** | **100%** | N/A | Cart API endpoints |
+| **`Security`** | **100%** | N/A | Spring Security rules |
+| **`CarPartInfo`** | **78%** | N/A | DTOs & Model properties |
+| **`PartController`** | **59%** | N/A | Secondary API endpoints |
+| **`CartItem`** | **56%** | N/A | DTOs & Model properties |
+| **`CarpartsappApplication`** | **37%** | N/A | Spring Boot main bootstrap context |
+| **`UserController`** | **33%** | N/A | User management endpoints |
+
+## Generating the Report Locally
+To re-run the unit test suite and update the local JaCoCo coverage report using Maven:
+
+```bash
+# Run tests and generate JaCoCo report
+mvn clean test
+
+# View HTML report in target directory
+open target/site/jacoco/index.html
 
