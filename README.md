@@ -1,178 +1,187 @@
 # Car Parts REST API
 
-A simple RESTful API for managing car parts. This repository provides endpoints to create, read, update, and delete car part records and can be used as a starting point for an inventory, marketplace, or repair-shop service.
+A Spring Boot REST API for managing a car parts inventory and a per-user shopping cart. The application exposes endpoints to add, list, update, and delete parts, and supports authenticated cart operations tied to the logged-in user.
 
-## Table of Contents
+## Overview
 
-- [Features](#features)
-- [Tech stack](#tech-stack)
-- [Getting started](#getting-started)
-  - [Prerequisites](#prerequisites)
-  - [Installation](#installation)
-  - [Environment variables](#environment-variables)
-  - [Running](#running)
-- [API Reference](#api-reference)
-  - [Authentication](#authentication)
-  - [Endpoints](#endpoints)
-- [Data model (example)](#data-model-example)
-- [Testing](#testing)
-- [Docker](#docker)
-- [Contributing](#contributing)
-- [License](#license)
-- [Contact](#contact)
+This project is a simple backend for a car-parts storefront or inventory system. It includes:
 
-## Features
+- Inventory management for car parts
+- User-specific cart functionality
+- Persistent storage via JPA and PostgreSQL
+- Spring Security integration with OAuth2 login
+- REST endpoints for parts and cart operations
 
-- CRUD operations for car parts
-- Search and filtering (by name, category, compatibility, etc.)
-- Pagination for listing endpoints
-- Basic validation and error handling
-- Configurable via environment variables
+## Tech Stack
 
-## Tech stack
+- Java 17
+- Spring Boot 3.2.2
+- Maven (wrapper included)
+- Spring Web
+- Spring Data JPA
+- PostgreSQL (runtime dependency)
+- Spring Security + OAuth2 Client
 
-This README is intentionally stack-agnostic. Update this section to match the actual technologies used in the repository. Example stacks:
+## Project Structure
 
-- Node.js + Express + PostgreSQL
-- Python (Flask / FastAPI) + PostgreSQL or SQLite
-- Java + Spring Boot + MySQL
+The application follows a standard Spring Boot layout (found under `src/main/java/com/mycompany/carpartsapp`):
 
-## Getting started
+- `controller` — REST controllers that expose the API
+- `model` — JPA entities (CarPartInfo, CartItem)
+- `repository` — Spring Data JPA repositories (PartRepository, CartRepository)
+- `service` — business logic services (PartService, CartService)
+- `config` — security and other application configuration
 
-These instructions assume a typical Node.js / Python-style project layout. Adjust commands to match the actual stack in this repo.
+Key classes include:
 
-### Prerequisites
+- `CarpartsappApplication` (Spring Boot entrypoint)
+- `PartController` — /api/parts endpoints
+- `CartController` — /api/cart endpoints
+- `CarPartInfo` — JPA entity for parts
+- `CartItem` — JPA entity for cart items
+- `PartRepository`, `CartRepository`
 
-- Git
-- A runtime for the project (Node.js, Python, Java, etc.)
-- Database (Postgres, MySQL, SQLite) if the project uses one
-- Optional: Docker & Docker Compose
+## Domain Model
 
-### Installation
+### Car Part
 
-1. Clone the repo
+The app stores car parts with these attributes:
 
-   git clone https://github.com/Exclusioning/car-parts-rest-api.git
-   cd car-parts-rest-api
+- `partId` (generated id)
+- `partName` (string)
+- `partPrice` (string representation in code)
+- `partQuantity` (int)
 
-2. Install dependencies (example for Node.js)
+### Cart Item
 
-   npm install
+The cart stores per-user items using:
 
-3. Create and configure environment variables (see below)
+- `cartId` (generated id)
+- `partId` (reference to a part)
+- `quantity` (int)
+- `sessionId` (string derived from OAuth2 user login)
 
-### Environment variables
+Cart operations use the authenticated OAuth2 user's login value to scope cart data to a user.
 
-Create a `.env` file in the project root (or configure your environment) with the variables the project requires. Example variables (modify to match your project):
+## API Endpoints
 
-- PORT=3000
-- DATABASE_URL=postgres://user:pass@localhost:5432/carparts
-- NODE_ENV=development
-- JWT_SECRET=change_me
+Base path: `/api`
 
-### Running
+### Parts
 
-Run the application in development mode (example for Node.js):
+GET `/api/parts`
+- Returns the full list of parts.
 
-- npm run dev
+GET `/api/parts/{partId}`
+- Returns the part matching the specified ID.
 
-Start in production mode:
+POST `/api/parts`
+- Creates a new part.
+- Request parameters (form/query): `name`, `price`, `quantity`.
 
-- npm start
+Example:
 
-If the repository includes a Dockerfile and docker-compose.yml you can use:
+```bash
+curl -X POST "http://localhost:8080/api/parts?name=Brake%20Pad&price=29.99&quantity=50"
+```
 
-- docker-compose up --build
+PUT `/api/parts/{partId}/{quantity}`
+- Updates the quantity of an existing part.
 
-## API Reference
+Example:
 
-### Authentication
+```bash
+curl -X PUT "http://localhost:8080/api/parts/1/25"
+```
 
-If the API requires authentication, document the auth scheme here (e.g., JWT bearer tokens, API keys). Example:
+DELETE `/api/parts/{partId}`
+- Deletes a part by ID.
 
-- Use: Authorization: Bearer <token>
-- Endpoint to obtain token: POST /auth/login
+Example:
 
-### Endpoints
+```bash
+curl -X DELETE "http://localhost:8080/api/parts/1"
+```
 
-Below are example endpoints. Update names and request/response shapes to match your implementation.
+### Cart
 
-- GET /parts
-  - Query params: page, limit, q (search), category, compatible_with
-  - Returns: paginated list of parts
+All cart endpoints require an authenticated user (OAuth2).
 
-- GET /parts/:id
-  - Returns: a single part object by id
+GET `/api/cart`
+- Returns the authenticated user's cart as a list of items.
 
-- POST /parts
-  - Body: { name, manufacturer, sku, category, price, quantity, compatibility }
-  - Returns: created part
+POST `/api/cart/{partId}/{quantity}`
+- Adds a quantity of a part to the authenticated user's cart.
 
-- PUT /parts/:id
-  - Body: fields to update
-  - Returns: updated part
+Example:
 
-- DELETE /parts/:id
-  - Returns: status 204 on success
+```bash
+curl -X POST "http://localhost:8080/api/cart/1/2" -b <cookie-or-auth>
+```
 
-Example cURL (create a part):
+PUT `/api/cart/{partId}/{quantity}`
+- Updates the quantity for an item in the cart.
 
-curl -X POST http://localhost:3000/parts \
-  -H "Content-Type: application/json" \
-  -d '{"name":"Brake Pad","manufacturer":"ACME","sku":"BP-123","category":"Brakes","price":29.99,"quantity":100}'
+DELETE `/api/cart/{partId}`
+- Removes an item from the authenticated user's cart.
 
-## Data model (example)
+## Authentication
 
-A concise example of the car part model used by the API:
+The application uses Spring Security and OAuth2 login. Controller methods expect an `@AuthenticationPrincipal OAuth2User` principal and use the principal's `login` attribute as the session/user identifier for cart operations.
 
-- id: integer | uuid
-- name: string
-- manufacturer: string
-- sku: string
-- category: string
-- price: number
-- quantity: integer
-- compatibility: array of { make, model, years }
-- description: string
-- created_at: timestamp
-- updated_at: timestamp
+Configure OAuth2 client properties in `application.properties` / `application.yml` for your provider (GitHub, Google, etc.).
+
+## Configuration
+
+Typical application properties to set (examples):
+
+- `spring.datasource.url=jdbc:postgresql://localhost:5432/carparts`
+- `spring.datasource.username=...`
+- `spring.datasource.password=...`
+- `spring.jpa.hibernate.ddl-auto=update` (or `validate`/`none` in production)
+- OAuth2 client config: `spring.security.oauth2.client.registration.{provider}` settings
+
+Check `src/main/resources` for property files and existing configuration.
+
+## Running the Application
+
+Requirements:
+
+- Java 17+
+- Maven (the repo includes the Maven wrapper)
+- PostgreSQL (or change JPA config to an embedded DB for local testing)
+
+Run with the Maven wrapper:
+
+```bash
+./mvnw spring-boot:run
+```
+
+Open the API at:
+
+http://localhost:8080/api
+
+## Building
+
+```bash
+./mvnw clean package
+```
 
 ## Testing
 
-Run tests (update to match the project test runner):
+The project includes Spring Boot test dependencies and JaCoCo reporting configured in Maven. Run:
 
-- npm test
+```bash
+./mvnw test
+```
 
-Include instructions for running unit, integration, and API tests, and any test fixtures or seed data.
+## Notes & TODOs
 
-## Docker
-
-If the project provides Docker assets, document how to build and run the container. Example:
-
-- docker build -t car-parts-api .
-- docker run -p 3000:3000 --env-file .env car-parts-api
-
-Or using docker-compose:
-
-- docker-compose up --build
-
-## Contributing
-
-Contributions are welcome. Please include:
-
-1. Fork the repo
-2. Create a feature branch: git checkout -b feat/my-feature
-3. Commit your changes: git commit -m "feat: add ..."
-4. Push to your branch and open a pull request
-
-Describe any code style, linting, or commit message conventions here.
+- `partPrice` is stored as a String in the current model — consider switching to a numeric type (BigDecimal) for correctness.
+- Improve validation for inputs (e.g., negative quantities, price format).
+- Add DTOs for API requests/responses to decouple JPA entities from external contracts.
+- Add OpenAPI / Swagger documentation for discoverability.
 
 ## License
 
-Add the project's license here (e.g., MIT). If the repo doesn't have a license file yet, add one or replace this section accordingly.
-
-## Contact
-
-Maintainer: @Exclusioning
-
-If you'd like, I can customize this README to exactly match the project's stack (Node.js/Express, Python/FastAPI, etc.), add real example requests/responses from the code, or include a generated API reference. Tell me which you'd prefer and I'll update the README accordingly.
+No explicit license file is present in the repository. Add a LICENSE file (e.g., MIT) if you intend to open-source this project.
