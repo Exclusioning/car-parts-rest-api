@@ -1,3 +1,88 @@
-target/
-.DS_Store
+# Compiled class files
 *.class
+
+# Log files
+*.log
+
+# BlueJ files
+*.ctxt
+
+# Mobile Tools for Java (J2ME)
+.mtj.tmp/
+
+# Package files
+*.jar
+*.war
+*.ear
+
+# Maven
+/target/
+/pom.xml.tag
+/pom.xml.releaseBackup
+/pom.xml.versionsBackup
+/pom.xml.next
+/release.properties
+/dependency-reduced-pom.xml
+/buildNumber.properties
+/.mvn/timing.properties
+
+# Gradle
+/.gradle/
+/build/
+/out/
+!gradle-wrapper.jar
+gradle-wrapper.jar
+
+# Eclipse
+.classpath
+.project
+.settings/
+.eclipse/
+
+# IntelliJ IDEA
+*.iml
+.idea/
+.idea/*
+!.idea/vcs.xml
+/.idea/workspace.xml
+/.idea/tasks.xml
+/.idea/usage.statistics.xml
+/.idea/dictionaries
+/.idea/shelf
+
+# NetBeans
+/nbproject/private/
+/nbbuild/
+/dist/
+/nbdist/
+/build/
+*.nbattrs
+
+# VS Code
+.vscode/
+
+# macOS
+.DS_Store
+
+# Windows
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Environment files
+.env
+.env.*
+
+# Temporary / swap
+*~
+*.swp
+*.tmp
+*.bak
+*.orig
+
+# Native crash logs
+hs_err_pid*
+
+# Other
+.recommenders/
+*.keystore
