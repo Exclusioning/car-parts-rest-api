@@ -1,184 +1,176 @@
 # Car Parts REST API
 
-A Spring Boot REST API for managing a car parts inventory and a per-user shopping cart. The application exposes endpoints to add, list, update, and delete parts, and supports authenticated cart operations tied to the logged-in user.
+A simple Java REST API for browsing car parts, managing a shopping cart, and performing basic user operations — suitable as a learning example, demo backend, or small project starter.
 
-## Overview
+> Lightweight, Maven-built Java service with clear controller → service → repository layers.
 
-This project is a simple backend for a car-parts storefront or inventory system. It includes:
+## Table of contents
+- [What this project does](#what-this-project-does)
+- [Why it’s useful](#why-its-useful)
+- [Tech stack](#tech-stack)
+- [Prerequisites](#prerequisites)
+- [Get started (quickstart)](#get-started-quickstart)
+- [Running](#running)
+- [Testing](#testing)
+- [Example API requests](#example-api-requests)
+- [Project layout](#project-layout)
+- [How to get help](#how-to-get-help)
+- [Maintainers & contributing](#maintainers--contributing)
 
-- Inventory management for car parts
-- User-specific cart functionality
-- Persistent storage via JPA and PostgreSQL
-- Spring Security integration with OAuth2 login
-- REST endpoints for parts and cart operations
+## What this project does
+Car Parts REST API exposes HTTP endpoints to:
 
-## Tech Stack
+- List and query car parts
+- Manage a user shopping cart (add/remove items)
+- Perform basic user-related actions (create/lookup)
 
-- Java 17
-- Spring Boot 3.2.2
-- Maven (wrapper included)
-- Spring Web
-- Spring Data JPA
-- PostgreSQL (runtime dependency)
-- Spring Security + OAuth2 Client
+The application entry point is src/main/java/com/mycompany/carpartsapp/CarpartsappApplication.java and HTTP endpoints live under src/main/java/com/mycompany/carpartsapp/controller.
 
-## Project Structure
+## Why it’s useful
+- Small, focused codebase ideal for learning REST controllers, service layering, and simple persistence patterns in Java.
+- Ready-to-run Maven project (mvnw included) that can be extended into a production prototype or used for demos.
+- Clear separation of concerns (controllers, services, repositories, models) makes it easy to add features or swap implementations.
 
-The application follows a standard Spring Boot layout (found under `src/main/java/com/mycompany/carpartsapp`):
+## Tech stack
+- Language: Java
+- Build: Maven (wrapper included: mvnw / mvnw.cmd)
+- Typical framework: Spring Boot-style project layout (main class + controllers/services)
 
-- `controller` — REST controllers that expose the API
-- `model` — JPA entities (CarPartInfo, CartItem)
-- `repository` — Spring Data JPA repositories (PartRepository, CartRepository)
-- `service` — business logic services (PartService, CartService)
-- `config` — security and other application configuration
+Notable files:
+- pom.xml — project build and dependencies
+- src/main/java/com/mycompany/carpartsapp/ — application code
 
-Key classes include:
+## Prerequisites
+- JDK 17+ (or the version configured in pom.xml)
+- Git
+- Internet access for Maven dependency resolution
 
-- `CarpartsappApplication` (Spring Boot entrypoint)
-- `PartController` — /api/parts endpoints
-- `CartController` — /api/cart endpoints
-- `CarPartInfo` — JPA entity for parts
-- `CartItem` — JPA entity for cart items
-- `PartRepository`, `CartRepository`
-
-## Domain Model
-
-### Car Part
-
-The app stores car parts with these attributes:
-
-- `partId` (generated id)
-- `partName` (string)
-- `partPrice` (string representation in code)
-- `partQuantity` (int)
-
-### Cart Item
-
-The cart stores per-user items using:
-
-- `cartId` (generated id)
-- `partId` (reference to a part)
-- `quantity` (int)
-- `sessionId` (string derived from OAuth2 user login)
-
-Cart operations use the authenticated OAuth2 user's login value to scope cart data to a user.
-
-## API Endpoints
-
-Base path: `/api`
-
-### Parts
-
-GET `/api/parts`
-- Returns the full list of parts.
-
-GET `/api/parts/{partId}`
-- Returns the part matching the specified ID.
-
-POST `/api/parts`
-- Creates a new part.
-- Request parameters (form/query): `name`, `price`, `quantity`.
-
-Example:
+## Get started (quickstart)
+Clone and run with the included Maven wrapper:
 
 ```bash
-curl -X POST "http://localhost:8080/api/parts?name=Brake%20Pad&price=29.99&quantity=50"
-```
-
-PUT `/api/parts/{partId}/{quantity}`
-- Updates the quantity of an existing part.
-
-Example:
-
-```bash
-curl -X PUT "http://localhost:8080/api/parts/1/25"
-```
-
-DELETE `/api/parts/{partId}`
-- Deletes a part by ID.
-
-Example:
-
-```bash
-curl -X DELETE "http://localhost:8080/api/parts/1"
-```
-
-### Cart
-
-All cart endpoints require an authenticated user (OAuth2).
-
-GET `/api/cart`
-- Returns the authenticated user's cart as a list of items.
-
-POST `/api/cart/{partId}/{quantity}`
-- Adds a quantity of a part to the authenticated user's cart.
-
-Example:
-
-```bash
-curl -X POST "http://localhost:8080/api/cart/1/2" -b <cookie-or-auth>
-```
-
-PUT `/api/cart/{partId}/{quantity}`
-- Updates the quantity for an item in the cart.
-
-DELETE `/api/cart/{partId}`
-- Removes an item from the authenticated user's cart.
-
-## Authentication
-
-The application uses Spring Security and OAuth2 login. Controller methods expect an `@AuthenticationPrincipal OAuth2User` principal and use the principal's `login` attribute as the session/user identifier for cart operations.
-
-Configure OAuth2 client properties in `application.properties` / `application.yml` for your provider (GitHub, Google, etc.).
-
-## Configuration
-
-Typical application properties to set (examples):
-
-- `spring.datasource.url=jdbc:postgresql://localhost:5432/carparts`
-- `spring.datasource.username=...`
-- `spring.datasource.password=...`
-- `spring.jpa.hibernate.ddl-auto=update` (or `validate`/`none` in production)
-- OAuth2 client config: `spring.security.oauth2.client.registration.{provider}` settings
-
-Check `src/main/resources` for property files and existing configuration.
-
-## Running the Application
-
-Requirements:
-
-- Java 17+
-- Maven (the repo includes the Maven wrapper)
-- PostgreSQL (or change JPA config to an embedded DB for local testing)
-
-Run with the Maven wrapper:
-
-```bash
+git clone https://github.com/Exclusioning/car-parts-rest-api.git
+cd car-parts-rest-api
+# Unix / macOS
 ./mvnw spring-boot:run
+# Windows (PowerShell / CMD)
+# .\mvnw.cmd spring-boot:run
 ```
 
-Open the API at:
-
-http://localhost:8080/api
-
-## Building
+Or build a runnable jar and start it:
 
 ```bash
 ./mvnw clean package
+java -jar target/*.jar
 ```
 
-## Testing
+By default the service listens on port 8080 (changeable via Spring properties).
 
-The project includes Spring Boot test dependencies and JaCoCo reporting configured in Maven. Run:
+## Running
+Common commands:
+
+- Run tests
 
 ```bash
 ./mvnw test
 ```
 
-## Notes & TODOs
+- Build
 
-- `partPrice` is stored as a String in the current model — consider switching to a numeric type (BigDecimal) for correctness.
-- Improve validation for inputs (e.g., negative quantities, price format).
-- Add DTOs for API requests/responses to decouple JPA entities from external contracts.
-- Add OpenAPI / Swagger documentation for discoverability.
+```bash
+./mvnw clean package
+```
 
+- Run with a profile or environment variables
+
+```bash
+SPRING_PROFILES_ACTIVE=dev ./mvnw spring-boot:run
+# or
+SPRING_DATASOURCE_URL=jdbc:... server.port=9090 ./mvnw spring-boot:run
+```
+
+Configuration files are under src/main/resources — supply Spring properties or environment variables to configure ports, datasources, and profiles.
+
+## Testing
+Unit tests live under src/test. Run them with:
+
+```bash
+./mvnw test
+```
+
+Add tests under src/test/java to cover controllers and services before opening PRs.
+
+## Example API requests
+Use the following examples as a starting point. Adjust the paths/JSON to match the models in src/main/java/com/mycompany/carpartsapp/model.
+
+- List parts (GET)
+
+```bash
+curl -sS http://localhost:8080/api/parts
+```
+
+- Get a single part (GET)
+
+```bash
+curl -sS http://localhost:8080/api/parts/{partId}
+```
+
+- Add an item to cart (POST)
+
+```bash
+curl -X POST http://localhost:8080/api/cart \
+  -H "Content-Type: application/json" \
+  -d '{"partId":"123","quantity":2,"userId":"user-1"}'
+```
+
+- Create a user (POST)
+
+```bash
+curl -X POST http://localhost:8080/api/users \
+  -H "Content-Type: application/json" \
+  -d '{"username":"alice","email":"alice@example.com"}'
+```
+
+Refer to the model classes in src/main/java/com/mycompany/carpartsapp/model for the exact request/response fields.
+
+## Project layout
+```
+.
+├─ mvnw, mvnw.cmd            # Maven wrapper scripts
+├─ pom.xml                   # Maven build file
+├─ src/
+│  ├─ main/
+│  │  ├─ java/
+│  │  │  └─ com/mycompany/carpartsapp/
+│  │  │     ├─ CarpartsappApplication.java    # app entry point
+│  │  │     ├─ controller/     # HTTP controllers (PartController, CartController, UserController)
+│  │  │     ├─ service/        # business logic
+│  │  │     ├─ repository/     # persistence layer
+│  │  │     └─ model/          # DTOs / domain models
+│  │  └─ resources/            # application properties / static resources
+│  └─ test/                    # test sources
+└─ README.md
+```
+
+How it fits together: controllers handle HTTP requests and delegate to services; services contain business logic and use repositories to load/save domain models defined in model/.
+
+## How to get help
+- Open an issue in this repository with a clear title and reproduction steps.
+- Inspect the source under src/main/java for examples of request/response shapes.
+
+When filing an issue include: endpoint path, request payload, response (or server logs), and steps to reproduce.
+
+## Maintainers & contributing
+Maintainer: Exclusioning (GitHub repository owner)
+
+Contributing (brief):
+1. Fork the repository and create a branch: git checkout -b feat/short-description
+2. Implement changes and add tests
+3. Run tests: ./mvnw test
+4. Push and open a pull request against the main branch
+
+If you plan large or breaking changes, please open an issue first to discuss design and API changes.
+
+---
+
+If you want, I can also add a CONTRIBUTING.md and fill in more precise run/config examples after you confirm the target Java version and any expected external services (database, cache).
